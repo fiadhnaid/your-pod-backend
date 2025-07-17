@@ -107,7 +107,7 @@ User profile:
 Reference material (may be empty):
 \"\"\"{payload.get('reference_text','')}\"\"\"
 
-Return JSON with the schema I provide next. You must return the FULL SCRIPT FOR EACH PODCAST OPTION.
+Return JSON with the schema I provide next. You must return the FULL SCRIPT FOR EACH PODCAST OPTION. Your purpose is to inform and engage the listener - hyperpersonalise to the information you have on them and ground the content of the podcast in facts and reputed bodies of knowledge and figures. You must engage the listener with the information you have on them. The 3 options should be varied and one should be left field (but still tailored to the info you have on them) so they have a variety to choose from.
 """.strip()
 
         # 3️⃣ Hit OpenAI (structured output enforced)
