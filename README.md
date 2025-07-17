@@ -35,3 +35,16 @@ pip install -r requirements.txt     # installs Flask + python‑dotenv
 
 PORT=5001 python app.py
 
+
+
+
+_____
+testing the initial script options api call 
+
+
+PORT=5001 python app.py             # restart so code change loads
+
+curl -s -X POST http://localhost:5001/generate_options \
+  -H "Content-Type: application/json" \
+  -d '{"growth_areas":["leadership","negotiation"],"why":"promotion next quarter","length_minutes":8,"preferred_style":"upbeat interview","voice_tone":"like Michelle Obama"}' \
+| python3 -m json.tool
