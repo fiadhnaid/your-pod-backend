@@ -120,6 +120,60 @@ Return JSON with the schema I provide next. You must return the FULL SCRIPT FOR 
         logging.exception("Error in /generate_options")
         return jsonify(error=str(e)), 500
 
+
+
+# ── placeholder for Jack to write over ───────────────────────────────────────
+def generate_audio(option: dict) -> dict:
+    """
+    TEMP stub. Calls ElevenLabs (to be implemented by Jack).
+    Returns a dict like:
+      { "audio_url": "https://..." }
+    For now, just echo back a mock URL so front‑end flow keeps going.
+    """
+    logging.info("Pretending to generate audio for option: %s", option["title"])
+    # TODO: replace with real ElevenLabs call
+    return {"audio_url": f"https://example.com/mock/{option['title'].replace(' ','_')}.mp3"}
+
+# ── POST /select_option ──────────────────────────────────────────────────────
+@app.route("/select_option", methods=["POST"])
+def select_option():
+    """
+    Front‑end POSTs the chosen podcast option.
+    Expected JSON:
+    {
+      "selected_index": 0|1|2,
+      "options": [ {title, description, script, voice_description}, ... ]
+    }
+    """
+    payload = request.get_json(silent=True) or {}
+
+    # Basic validation
+    if "selected_index" not in payload or "options" not in payload:
+        return jsonify(error="selected_index and options are required"), 400
+
+    idx      = payload["selected_index"]
+    options  = payload["options"]
+
+    if not isinstance(options, list) or idx not in {0,1,2} or idx >= len(options):
+        return jsonify(error="Invalid index or options array"), 400
+
+    selected_option = options[idx]
+
+    try:
+        # 👉 Call the audio generator (sync for POC; make async later if needed)
+        audio_info = generate_audio(selected_option)
+
+        # Send minimal success payload back to front‑end
+        return jsonify(
+            message="Audio generation triggered",
+            selected_title=selected_option["title"],
+            audio=audio_info      # currently just {audio_url: "..."}
+        ), 200
+
+    except Exception as e:
+        logging.exception("Error in /select_option")
+        return jsonify(error=str(e)), 500
+
 # ── dev server entry‑point ───────────────────────────────────────────────────
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))   # change PORT env to dodge conflicts
