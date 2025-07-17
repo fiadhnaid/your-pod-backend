@@ -24,7 +24,7 @@ logging.basicConfig(
 
 # ── Flask app bootstrap ──────────────────────────────────────────────────────
 app = Flask(__name__)
-CORS(app)                             # open CORS to everyone – fine for a hackathon
+CORS(app, resources={r"/*": {"origins": "http://localhost:8080"}})
 
 # 0. Health‑check (the one you already had)
 @app.route("/")
@@ -97,6 +97,9 @@ def generate_options():
         # 1️⃣ Validate minimal required fields
         if "growth_areas" not in payload or "length_minutes" not in payload:
             return jsonify(error="Missing required keys"), 400
+
+        if int(payload.get("length_minutes", 0)) > 5:
+            return jsonify(error="Podcast length cannot exceed 5 minutes"), 400
 
         # 2️⃣ Craft prompt
         prompt = f"""
@@ -214,5 +217,5 @@ def select_option():
 
 # ── dev server entry‑point ───────────────────────────────────────────────────
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 5000))   # change PORT env to dodge conflicts
+    port = int(os.getenv("PORT", 5001))
     app.run(host="0.0.0.0", port=port, debug=True)

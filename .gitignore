@@ -1,7 +1,9 @@
 # Virtualenv + IDE clutter
-.venv/
+venv/
 __pycache__/
 *.pyc
 
 # Local config & secrets
 .env
+
+.venv/
