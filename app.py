@@ -10,6 +10,8 @@ import uuid
 # ── env & logging ────────────────────────────────────────────────────────────
 load_dotenv()                         # reads .env
 OPENAI_KEY = os.getenv("OPENAI_KEY")  # keep real key out of source control
+ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")   # no literal key here
+
 ELEVENLABS_API_KEY='sk_149a99c5ad384a0b612c18f4b20c1d3465a27f17c454105b'
 
 client      = OpenAI(api_key=OPENAI_KEY)
