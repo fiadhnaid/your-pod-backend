@@ -3,10 +3,14 @@ from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from openai import OpenAI             # pip install openai>=1.13.3
+from elevenlabs import VoiceSettings
+from elevenlabs.client import ElevenLabs
+import uuid
 
 # ── env & logging ────────────────────────────────────────────────────────────
 load_dotenv()                         # reads .env
 OPENAI_KEY = os.getenv("OPENAI_KEY")  # keep real key out of source control
+ELEVENLABS_API_KEY='sk_149a99c5ad384a0b612c18f4b20c1d3465a27f17c454105b'
 
 client      = OpenAI(api_key=OPENAI_KEY)
 CHAT_MODEL  = "gpt-4o-mini"           # fast + cheap, tweak as you like
@@ -125,14 +129,46 @@ Return JSON with the schema I provide next. You must return the FULL SCRIPT FOR 
 # ── placeholder for Jack to write over ───────────────────────────────────────
 def generate_audio(option: dict) -> dict:
     """
-    TEMP stub. Calls ElevenLabs (to be implemented by Jack).
-    Returns a dict like:
-      { "audio_url": "https://..." }
-    For now, just echo back a mock URL so front‑end flow keeps going.
+    Calls ElevenLabs to generate audio for the given podcast option.
+    Saves the audio to static/audio/<uuid>.mp3 and returns the public URL.
     """
-    logging.info("Pretending to generate audio for option: %s", option["title"])
-    # TODO: replace with real ElevenLabs call
-    return {"audio_url": f"https://example.com/mock/{option['title'].replace(' ','_')}.mp3"}
+    logging.info("Generating audio for option: %s", option["title"])
+    ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY") or ELEVENLABS_API_KEY
+    elevenlabs = ElevenLabs(api_key=ELEVENLABS_API_KEY)
+
+    # Use a fixed voice for now (Adam)
+    voice_id = "pNInz6obpgDQGcFmaJgB"  # Adam pre-made voice
+    output_format = "mp3_22050_32"
+    model_id = "eleven_turbo_v2_5"
+    script = option["script"]
+
+    response = elevenlabs.text_to_speech.convert(
+        voice_id=voice_id,
+        output_format=output_format,
+        text=script,
+        model_id=model_id,
+        voice_settings=VoiceSettings(
+            stability=0.0,
+            similarity_boost=1.0,
+            style=0.0,
+            use_speaker_boost=True,
+            speed=1.0,
+        ),
+    )
+
+    # Save to static/audio/<uuid>.mp3
+    audio_id = str(uuid.uuid4())
+    audio_path = f"static/audio/{audio_id}.mp3"
+    with open(audio_path, "wb") as f:
+        for chunk in response:
+            if chunk:
+                f.write(chunk)
+
+    # Build the public URL (assuming server is accessible at the same host)
+    # If running locally, you may want to adjust the host/port as needed
+    server_url = request.host_url.rstrip("/")
+    audio_url = f"{server_url}/static/audio/{audio_id}.mp3"
+    return {"audio_url": audio_url}
 
 # ── POST /select_option ──────────────────────────────────────────────────────
 @app.route("/select_option", methods=["POST"])
