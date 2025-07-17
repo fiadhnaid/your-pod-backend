@@ -10,9 +10,7 @@ import uuid
 # ── env & logging ────────────────────────────────────────────────────────────
 load_dotenv()                         # reads .env
 OPENAI_KEY = os.getenv("OPENAI_KEY")  # keep real key out of source control
-ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")   # no literal key here
-
-ELEVENLABS_API_KEY='sk_149a99c5ad384a0b612c18f4b20c1d3465a27f17c454105b'
+ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
 
 client      = OpenAI(api_key=OPENAI_KEY)
 CHAT_MODEL  = "gpt-4o-mini"           # fast + cheap, tweak as you like
@@ -138,7 +136,6 @@ def generate_audio(option: dict) -> dict:
     Saves the audio to static/audio/<uuid>.mp3 and returns the public URL.
     """
     logging.info("Generating audio for option: %s", option["title"])
-    ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY") or ELEVENLABS_API_KEY
     elevenlabs = ElevenLabs(api_key=ELEVENLABS_API_KEY)
 
     # Use a fixed voice for now (Adam)
@@ -163,7 +160,9 @@ def generate_audio(option: dict) -> dict:
 
     # Save to static/audio/<uuid>.mp3
     audio_id = str(uuid.uuid4())
-    audio_path = f"static/audio/{audio_id}.mp3"
+    audio_dir = "static/audio"
+    os.makedirs(audio_dir, exist_ok=True)
+    audio_path = f"{audio_dir}/{audio_id}.mp3"
     with open(audio_path, "wb") as f:
         for chunk in response:
             if chunk:
