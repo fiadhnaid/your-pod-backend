@@ -94,7 +94,7 @@ def generate_options():
 
         # 2️⃣ Craft prompt
         prompt = f"""
-Act as a hyper‑personalised career‑growth podcast generator.
+Act as a hyper‑personalised podcast generator.
 Create **exactly three** podcast episode options.
 
 User profile:
@@ -107,7 +107,7 @@ User profile:
 Reference material (may be empty):
 \"\"\"{payload.get('reference_text','')}\"\"\"
 
-Return JSON with the schema I provide next.
+Return JSON with the schema I provide next. You must return the FULL SCRIPT FOR EACH PODCAST OPTION.
 """.strip()
 
         # 3️⃣ Hit OpenAI (structured output enforced)
